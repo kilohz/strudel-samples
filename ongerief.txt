@@ -1,0 +1,70 @@
+setcpm (126/4)
+const scale ="d2:minor";
+
+samples({
+ongerief: 'ongerief.wav',
+skuus: 'skuus.wav',
+}, 'https://kilohz.github.io/strudel-samples/');
+
+const skuusbuild = s("skuus*2").fit().lpf(saw.range(500, 5000)).slow(1);
+
+/* LEAD */
+const lead1 = n("<0 -2 9 4 7 0 -2 4 0 9 0 4 0 7 0 -2>*16")
+  .scale(scale).s("sawtooth").trans(12)
+const lead2 = n("<0 -2 0 -2>*16")
+  .scale(scale).s("sawtooth").trans(12).gain(.5).room(1)
+
+
+/* DRUMS */
+const bd = s("bd:2!4").bank("RolandTR909").gain(1.5)
+const sd = s("sd:2!4").bank("9000").gain(.3).room(.5)
+const top =  s("[hh hh hh hh]*16").bank("CasioRz1").gain(.5).lpf(saw.range(1000, 8000)).slow(4).room(.2)
+const drums = arrange([24,stack(bd,sd)],[10,stack(top)],[24,stack(bd,sd)])._scope()
+/* BASS */
+const bassnotes = "0 -2";
+const bass1 = n(bassnotes).s("gm_synth_bass_1").scale(scale).gain(.5).slow(4)
+const bass2 = n(bassnotes).s("gm_synth_bass_1").scale(scale).gain(.25).slow(4)
+const bass3 = n(bassnotes).s("gm_pad_warm").scale(scale).slow(4)
+const bass4 = n(bassnotes).s("gm_synth_bass_2").scale(scale).gain(.25).slow(4).detune(rand)
+
+/* Arrangements */
+const lead = arrange(
+  [4, lead2.trans(-12)],
+  [4, lead2],
+  [8, lead2],
+  [8, lead2.trans(12) ],
+  [8, lead2.trans(12).delay("<0 .25 .5 1>") ],
+  [2, n("-")],
+  [8, lead1],
+  [16, lead1],
+  [8, n("-")],
+  [4, n("-")],
+)
+const samps = arrange(
+  [4,n("-")], 
+  [2,s("ongerief").slow(2)],
+  [4,n("-")],
+  [1,s("skuus")],
+  [13,n("-")],
+  [8,skuusbuild],
+  [2,s("ongerief").slow(2)],
+  [44,n("-")],
+).room(1)
+const all_bass = arrange(
+  [4, stack(bass1,bass2)],
+  [4, stack(bass1,bass2)],
+  [8, stack(bass1,bass2,bass3)],
+  [16, stack(bass1,bass2,bass3,bass4)],
+  [2, n("-")],
+  [8, stack(bass1,bass2,bass3,bass4)],
+  [16, stack(bass1,bass2,bass3,bass4)],
+  [8, stack(bass1,bass2,bass3)],
+  [4, stack(bass1,bass2)],
+)
+stack(
+  lead,
+  samps,
+  all_bass,
+  drums,
+)
+._pianoroll()
